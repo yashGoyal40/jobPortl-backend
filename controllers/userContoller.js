@@ -3,6 +3,7 @@ import ErrorHandler from "../middlewares/error.js";
 import { User } from "../models/userSchema.js";
 import { v2 as cloudinary } from "cloudinary";
 import { sendToken } from "../utils/jwtToken.js";
+import { Job } from "../models/jobSchema.js";
 
 export const register = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -177,7 +178,7 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const updatePasswrod = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("+password");
+  const user = await User.findById(req.user._id).select("+password");
 
   const isPasswordisMatched = await user.comparePassword(req.body.oldPassword);
   if (!isPasswordisMatched) {
@@ -202,6 +203,9 @@ export const deleteUser = catchAsyncErrors(async (req, res, next) => {
       await cloudinary.uploader.destroy(resumeID);
     }
   }
+  if(user.role === "Employer"){
+    await Job.deleteMany({ postedBy: user._id });
+  }
 
   await User.findByIdAndDelete(user._id);
 
@@ -214,6 +218,6 @@ export const deleteUser = catchAsyncErrors(async (req, res, next) => {
     })
     .json({
       success: true,
-      message: "User Deleted succesfully",
+      message: "User Deleted succesfully with all the applications/jobs",
     });
 });
