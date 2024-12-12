@@ -1,5 +1,5 @@
 import express from "express"
-import { getUser, login, logout, register, updatePasswrod, updateProfile } from "../controllers/userContoller.js"
+import { deleteUser, getUser, login, logout, register, updatePasswrod, updateProfile } from "../controllers/userContoller.js"
 import { isAuthenticated } from "../middlewares/auth.js";
 
 const router = express.Router();
@@ -10,4 +10,5 @@ router.get("/logout",isAuthenticated,logout)
 router.get("/me",isAuthenticated,getUser)
 router.put("/update/profile",isAuthenticated,updateProfile)
 router.put("/update/password",isAuthenticated,updatePasswrod)
+router.put("/delete",isAuthenticated,deleteUser)
 export default router

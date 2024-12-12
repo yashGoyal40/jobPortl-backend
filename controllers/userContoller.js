@@ -163,34 +163,57 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
     }
   }
 
-  const user = await User.findByIdAndUpdate(req.user._id, newUserData,{
-    new:true,
-    runValidators:true,
-    useFindAndModify:false
+  const user = await User.findByIdAndUpdate(req.user._id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
   });
 
   res.status(200).json({
     success: true,
     user,
     message: "Profile updated successfully",
-  })
-
+  });
 });
 
 export const updatePasswrod = catchAsyncErrors(async (req, res, next) => {
-    const user = await User.findById(req.user.id).select("+password");
+  const user = await User.findById(req.user.id).select("+password");
 
-    const isPasswordisMatched = await user.comparePassword(req.body.oldPassword);
-    if (!isPasswordisMatched) {
-      return next(new ErrorHandler("Old password is incorrect", 400));
+  const isPasswordisMatched = await user.comparePassword(req.body.oldPassword);
+  if (!isPasswordisMatched) {
+    return next(new ErrorHandler("Old password is incorrect", 400));
+  }
+
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    return next(new ErrorHandler("confirm Password does not match", 400));
+  }
+
+  user.password = req.body.newPassword;
+  await user.save();
+  sendToken(user, 200, res, "Password updated successfully");
+});
+
+export const deleteUser = catchAsyncErrors(async (req, res, next) => {
+  const user = req.user;
+
+  if(user.resume){
+    const resumeID = user.resume.public_id;
+    if (resumeID) {
+      await cloudinary.uploader.destroy(resumeID);
     }
+  }
 
-    if (req.body.newPassword !== req.body.confirmPassword) {
-      return next(new ErrorHandler("confirm Password does not match", 400));
-    }
+  await User.findByIdAndDelete(user._id);
 
-    user.password = req.body.newPassword;
-    await user.save();
-    sendToken(user, 200, res, "Password updated successfully");
 
-})
+  res
+    .status(200)
+    .cookie("token", "", {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+    })
+    .json({
+      success: true,
+      message: "User Deleted succesfully",
+    });
+});
