@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       validate: [validator.isEmail, "Please provide valid email"],
+      unique:true
     },
     phone: {
       type: Number,
@@ -47,6 +48,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["Job seeker", "Employer"],
+      immutable:true
     },
   },
   { timestamps: true }
