@@ -197,18 +197,17 @@ export const updatePasswrod = catchAsyncErrors(async (req, res, next) => {
 export const deleteUser = catchAsyncErrors(async (req, res, next) => {
   const user = req.user;
 
-  if(user.resume){
+  if (user.resume) {
     const resumeID = user.resume.public_id;
     if (resumeID) {
       await cloudinary.uploader.destroy(resumeID);
     }
   }
-  if(user.role === "Employer"){
+  if (user.role === "Employer") {
     await Job.deleteMany({ postedBy: user._id });
   }
 
   await User.findByIdAndDelete(user._id);
-
 
   res
     .status(200)

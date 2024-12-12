@@ -5,8 +5,8 @@ import cookieParser from "cookie-parser";
 import { connection } from "./database/connection.js";
 import { errorMiddleware } from "./middlewares/error.js";
 import fileUpload from "express-fileupload";
-import userRouter from "./routes/userRoutes.js"
-import jobRouter from "./routes/jobRoutes.js"
+import userRouter from "./routes/userRoutes.js";
+import jobRouter from "./routes/jobRoutes.js";
 
 const app = express();
 
@@ -30,8 +30,8 @@ app.use(
   })
 );
 
-app.use("/api/v1/user",userRouter)
-app.use("/api/v1/job",jobRouter)
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/job", jobRouter);
 
 connection();
 
