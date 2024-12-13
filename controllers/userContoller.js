@@ -6,6 +6,7 @@ import { sendToken } from "../utils/jwtToken.js";
 import { Job } from "../models/jobSchema.js";
 import crypto from "crypto";
 import { sendEmail } from "../utils/sendMail.js";
+import { PasswordResetRequest } from "../models/passwordResetRequestSchema.js";
 
 export const register = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -126,10 +127,7 @@ export const verifyUser = catchAsyncErrors(async (req, res, next) => {
   await user.save();
 
   sendToken(user, 200, res, "User Registered and verified succesfully");
-
 });
-
-
 
 export const login = catchAsyncErrors(async (req, res, next) => {
   const { role, email, password } = req.body;
@@ -271,4 +269,87 @@ export const deleteUser = catchAsyncErrors(async (req, res, next) => {
       success: true,
       message: "User Deleted succesfully with all the applications/jobs",
     });
+});
+
+export const requestPasworReset = catchAsyncErrors(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    return next(new ErrorHandler("Please provide email address", 400));
+  }
+  const user = await User.findOne({ email }).select("+otp +otpExpires");
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  const tempid = user._id.toString();
+  const otpPrefix = tempid.slice(0, 3).toUpperCase();
+  const otpSufix = Math.floor(1000 + crypto.randomInt(0, 9000)).toString();
+  const otp = `${otpPrefix}${otpSufix}`;
+  const otpExpires = Date.now() + 10 * 60 * 1000;
+
+  await PasswordResetRequest.create({
+    userId: user._id,
+    otp,
+    otpExpires,
+  });
+
+  const subject = "Verify Your Email";
+  const emailContent = `Your OTP for verification is ${otp}. It will expire in 10 minutes.`;
+  sendEmail({
+    email,
+    subject,
+    message: emailContent,
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "OTP sent to email",
+  });
+});
+
+export const passwordReset = catchAsyncErrors(async (req, res, next) => {
+  const { otp, newPassword, confirmPassword } = req.body;
+
+  if (!otp || !newPassword || !confirmPassword) {
+    return next(new ErrorHandler("Please Provide complete details", 400));
+  }
+
+  if (newPassword !== confirmPassword) {
+    return next(
+      new ErrorHandler("New password and confirm password do not match", 400)
+    );
+  }
+
+  const otpDetails = await PasswordResetRequest.findOne({ otp });
+
+  if (!otpDetails) {
+    return next(new ErrorHandler("Please enter correct otp", 400));
+  }
+
+  if (otpDetails.otpExpires < Date.now()) {
+    return next(new ErrorHandler("OTP has expired", 400));
+  }
+
+  const user = await User.findById(otpDetails.userId).select("+password");
+
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  
+  const isPassworSame = await user.comparePassword(newPassword);
+
+  if(isPassworSame){
+    return next(new ErrorHandler("the password is already same",400))
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  await PasswordResetRequest.deleteOne({ otp });
+
+  sendToken(user, 200, res, "Password reset successful");
+
 });

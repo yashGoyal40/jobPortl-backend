@@ -1,6 +1,8 @@
 import express from "express";
 import {
   deleteUser,
+  passwordReset,
+  requestPasworReset,
   getUser,
   login,
   logout,
@@ -16,6 +18,8 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/verify", verifyUser);
 router.post("/login", login);
+router.post("/forgotpass/requst",requestPasworReset);
+router.post("/forgotpass/changepass",passwordReset)
 router.get("/logout", isAuthenticated, logout);
 router.get("/getUser", isAuthenticated, getUser);
 router.put("/update/profile", isAuthenticated, updateProfile);
