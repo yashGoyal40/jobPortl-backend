@@ -8,6 +8,7 @@ import fileUpload from "express-fileupload";
 import userRouter from "./routes/userRoutes.js";
 import jobRouter from "./routes/jobRoutes.js";
 import applicationRouter from "./routes/applicationRoutes.js";
+import { newsLetterCron } from "./automation/newsLetterCron.js";
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/job", jobRouter);
 app.use("/api/v1/application", applicationRouter);
 
+newsLetterCron();
 connection();
 
 app.use(errorMiddleware);
