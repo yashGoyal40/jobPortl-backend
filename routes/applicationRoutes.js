@@ -5,7 +5,7 @@ import {
   employerGetAllApplication,
   jobSeekerGetAllApplication,
   postApplication,
-} from "../controllers/ApplicationController.js";
+} from "../controllers/applicationControlers/index.js";
 
 const router = express.Router();
 
