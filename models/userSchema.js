@@ -50,6 +50,18 @@ const userSchema = new mongoose.Schema(
       enum: ["Job seeker", "Employer"],
       immutable: true,
     },
+    otp: {
+      type: String,
+      select: false,
+    },
+    otpExpires: {
+      type: Date,
+      select: false,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -4,6 +4,8 @@ import { User } from "../models/userSchema.js";
 import { v2 as cloudinary } from "cloudinary";
 import { sendToken } from "../utils/jwtToken.js";
 import { Job } from "../models/jobSchema.js";
+import crypto from "crypto";
+import { sendEmail } from "../utils/sendMail.js";
 
 export const register = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -34,6 +36,9 @@ export const register = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler("Email already registered", 400));
     }
 
+    const otp = Math.floor(100000 + crypto.randomInt(0, 900000)).toString();
+    const otpExpires = Date.now() + 10 * 60 * 1000;
+
     const userData = {
       name,
       email,
@@ -47,6 +52,8 @@ export const register = catchAsyncErrors(async (req, res, next) => {
         secondNiche,
         thirdNiche,
       },
+      otp,
+      otpExpires,
     };
 
     if (req.files && req.files.resume) {
@@ -73,11 +80,56 @@ export const register = catchAsyncErrors(async (req, res, next) => {
       }
     }
     const user = await User.create(userData);
-    sendToken(user, 200, res, "User Registered");
+
+    const emailContent = `Your OTP for verification is ${otp}. It will expire in 10 minutes.`;
+    const subject = "Verify Your Email";
+    sendEmail({
+      email: user.email,
+      subject,
+      message: emailContent,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Registration successful. Verification email sent.",
+    });
   } catch (error) {
     next(error);
   }
 });
+
+export const verifyUser = catchAsyncErrors(async (req, res, next) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return next(new ErrorHandler("Email and OTP are required", 400));
+  }
+
+  const user = await User.findOne({ email }).select("+otp +otpExpires");
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  if (user.isVerified) {
+    return next(new ErrorHandler("User is already verified", 400));
+  }
+
+  if (user.otp !== otp || user.otpExpires < Date.now()) {
+    return next(new ErrorHandler("Invalid or expired OTP", 400));
+  }
+
+  user.isVerified = true;
+  user.otp = undefined;
+  user.otpExpires = undefined;
+
+  await user.save();
+
+  sendToken(user, 200, res, "User Registered and verified succesfully");
+
+});
+
+
 
 export const login = catchAsyncErrors(async (req, res, next) => {
   const { role, email, password } = req.body;
