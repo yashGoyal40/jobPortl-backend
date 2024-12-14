@@ -58,6 +58,15 @@ const applicationSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      companyName: {
+        type: String,
+        required: true,
+      },
+    },
+    status: {
+      type: String,
+      enum: ["pending", "rejected", "approved"],
+      default: "pending",
     },
     deletedBy: {
       jobSeeker: {

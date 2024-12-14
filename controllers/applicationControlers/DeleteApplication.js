@@ -18,6 +18,7 @@ export const deleteApplication = catchAsyncErrors(async (req, res, next) => {
       break;
     case "Employer":
       application.deletedBy.employer = true;
+      if (application.status === "pending") application.status = "rejected";
       await application.save();
       break;
     default:

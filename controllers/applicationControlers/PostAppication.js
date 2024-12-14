@@ -72,6 +72,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
   const jobInfo = {
     jobId: id,
     jobTitle: jobDetails.title,
+    companyName: jobDetails.companyName
   };
 
   const application = await Application.create({

@@ -5,6 +5,7 @@ import {
   employerGetAllApplication,
   jobSeekerGetAllApplication,
   postApplication,
+  ApplicationApproved,
 } from "../controllers/applicationControlers/index.js";
 
 const router = express.Router();
@@ -28,6 +29,13 @@ router.get(
   isAuthenticated,
   isAutherised("Job seeker"),
   jobSeekerGetAllApplication
+);
+
+router.put(
+  "/approve/:id",
+  isAuthenticated,
+  isAutherised("Employer"),
+  ApplicationApproved
 );
 
 router.delete("/delete/:id", isAuthenticated, deleteApplication);
