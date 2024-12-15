@@ -72,7 +72,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
   const jobInfo = {
     jobId: id,
     jobTitle: jobDetails.title,
-    companyName: jobDetails.companyName
+    companyName: jobDetails.companyName,
   };
 
   const application = await Application.create({
@@ -80,6 +80,9 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
     employerInfo,
     jobInfo,
   });
+
+  jobDetails.applicationCount = jobDetails.applicationCount + 1;
+  await jobDetails.save();
 
   res.status(200).json({
     success: true,

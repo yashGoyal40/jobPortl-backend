@@ -67,6 +67,10 @@ const jobSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    applicationCount: {
+      type: Number,
+      default: 0,
+    }
   },
   { timestamps: true }
 );

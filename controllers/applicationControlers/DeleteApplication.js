@@ -3,6 +3,7 @@ import ErrorHandler from "../../middlewares/error.js";
 import { Application } from "../../models/applicationSchema.js";
 import { v2 as cloudinary } from "cloudinary";
 import { User } from "../../models/userSchema.js";
+import { Job } from "../../models/jobSchema.js";
 
 export const deleteApplication = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
@@ -28,6 +29,11 @@ export const deleteApplication = catchAsyncErrors(async (req, res, next) => {
 
   if (application.deletedBy.employer && application.deletedBy.jobSeeker) {
     const { public_id } = application.jobSeekerInfo.resume;
+
+    const job = await Job.findById(application.jobInfo.jobId);
+    job.applicationCount = job.applicationCount - 1;
+    await job.save();
+
     await application.deleteOne();
 
     const isResumeUsed =
