@@ -18,7 +18,7 @@ router.post(
 );
 
 router.get(
-  "/employer/getall",
+  "/employer/getall/:id",
   isAuthenticated,
   isAutherised("Employer"),
   employerGetAllApplication
