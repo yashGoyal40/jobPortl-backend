@@ -28,6 +28,13 @@ export const register = catchAsyncErrors(async (req, res, next) => {
         new ErrorHandler("please provide your preffered niches", 400)
       );
     }
+    if(firstNiche && (firstNiche === secondNiche || firstNiche === thirdNiche || secondNiche == thirdNiche)){
+      return next(new ErrorHandler("the niches should be unique",400))
+    }
+
+    if(password.length <8){
+      return next(new ErrorHandler("Password's length be greater than 8",400))
+    }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -89,6 +96,7 @@ export const register = catchAsyncErrors(async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      email: user.email,
       message: "Registration successful. Verification email sent.",
     });
   } catch (error) {

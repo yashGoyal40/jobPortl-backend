@@ -13,6 +13,10 @@ export const isAuthenticated = catchAsyncErrors(async (req, res, next) => {
 
   req.user = await User.findById(decoded.id);
 
+  if (!req.user) {
+    return next(new ErrorHandler("user not found", 400));
+  }
+
   if (!req.user.isVerified) {
     return next(
       new ErrorHandler("user is Authenticated but not verified", 400)

@@ -1,14 +1,16 @@
 import { catchAsyncErrors } from "../../middlewares/catchAsyncError.js";
 import { Job } from "../../models/jobSchema.js";
+import ErrorHandler from "../../middlewares/error.js"
 
 export const getAllJobs = catchAsyncErrors(async (req, res, next) => {
-  const { place, niche, workType, searchKeyword } = req.query;
+  const { location, niche, workType, searchKeyword } = req.query;
+
   const query = {};
   if (workType) {
     query.jobType = { $regex: workType, $options: "i" };
   }
-  if (place) {
-    query.location = { $regex: place, $options: "i" };
+  if (location) {
+    query.location = { $regex: location, $options: "i" };
   }
   if (niche) {
     query.jobNiche = { $regex: niche, $options: "i" };
@@ -27,4 +29,5 @@ export const getAllJobs = catchAsyncErrors(async (req, res, next) => {
     jobs,
     count: jobs.length,
   });
+
 });
