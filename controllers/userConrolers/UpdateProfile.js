@@ -21,11 +21,18 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
 
   if (
     req.user.role === "Job seeker" &&
+    (firstNiche || secondNiche || thirdNiche) &&
     (!firstNiche || !secondNiche || !thirdNiche)
   ) {
-    return next(new ErrorHandler("please provide your preffered niches", 400));
+    return next(
+      new ErrorHandler("please provide your all preffered niches", 400)
+    );
   }
 
+  if(firstNiche && (firstNiche === secondNiche || firstNiche === thirdNiche || secondNiche == thirdNiche)){
+    return next(new ErrorHandler("the niches should be unique",400))
+  }
+  
   if (req.files) {
     const { resume } = req.files;
 

@@ -61,8 +61,8 @@ export const postjob = catchAsyncErrors(async (req, res, next) => {
     salary,
     hiringMultipleCandidates,
     personalWebsite: {
-      title: personalWebsiteUrl,
-      url: personalWebsiteTitle,
+      url: personalWebsiteUrl,
+      title: personalWebsiteTitle,
     },
     jobNiche,
     newsLettersSent,
