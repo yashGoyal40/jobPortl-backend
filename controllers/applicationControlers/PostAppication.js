@@ -81,6 +81,9 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
     jobInfo,
   });
 
+  req.user.appliedJobs.push(id);
+  await req.user.save();
+
   jobDetails.applicationCount = jobDetails.applicationCount + 1;
   await jobDetails.save();
 
