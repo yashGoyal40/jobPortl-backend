@@ -8,7 +8,6 @@ export const sendToken = (user, statusCode, res, message) => {
     secure:true,
     sameSite: 'None',
     path:'/',
-    domain: process.env.FRONTEND_URL,
   };
 
   res.status(statusCode).cookie("token", token, options).json({

@@ -9,7 +9,6 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
       secure: true,
       sameSite: "None",
       path: "/",
-      domain: process.env.FRONTEND_URL,
     })
     .json({
       success: true,
